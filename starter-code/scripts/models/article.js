@@ -1,4 +1,4 @@
-function Article (opts) {
+function Article(opts) {
   for (var keys in opts) {
     this[keys] = opts[keys];
   }
@@ -40,21 +40,31 @@ Article.loadAll = function(inputData) {
 };
 
 /* This function below will retrieve the data from either a local or remote
- source, process it, then hand off control to the View: */
+source, process it, then hand off control to the View:   $.getJSON()     */
 Article.fetchAll = function() {
   if (localStorage.blogArticles) {
     /* When our data is already in localStorage:
     1. We can process and load it,
     2. Then we can render the index page.  */
+    var parsedData = JSON.parse(localStorage.blogArticles);
+    Article.loadAll(parsedData);
+    articleView.renderIndexPage();
   } else {
     /* Without our localStorage in memory, we need to:
     1. Retrieve our JSON file with $.getJSON
-      1.a Load our json data
-      1.b Store that data in localStorage so that we can skip the server call next time,
-      1.c And then render the index page.*/
+    1.a Load our json data
+    1.b Store that data in localStorage so that we can skip the server call next time,
+    1.c And then render the index page.*/
+
+    $.getJSON('../data/blogArticles.json', function(blogData) {
+      var stringifiedData = JSON.stringify(blogData);
+      localStorage.setItem('blogArticles', stringifiedData);
+      Article.loadAll(stringifiedData);
+      articleView.renderIndexPage();
+      console.log('Loaded from database');
+    });
   }
 };
-
 
 
 /* Great work so far! STRETCH GOAL TIME!? Our main goal in this part of the
